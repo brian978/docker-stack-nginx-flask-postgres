@@ -1,0 +1,28 @@
+version: "3"
+services:
+  nginx:
+    image: nginx:1.13.8
+    ports:
+      - "8080:80"
+    links:
+      - python
+    volumes:
+      - ./container-config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./logs/nginx:/var/log/nginx
+
+  python:
+    image: brian978/python-flask:python3.6.4-flask
+    links:
+      - db
+    volumes:
+      - ./app:/var/app
+    command: ["/bin/bash", "/var/app/scripts/docker/run-uwsgi.sh"]
+
+  db:
+    image: postgres:latest
+    ports:
+      - "54321:5432"
+    volumes:
+      - ./persistent/postgres:/var/lib/postgresql
+    environment:
+      POSTGRES_PASSWORD: 12345
